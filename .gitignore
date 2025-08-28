@@ -18,6 +18,7 @@ out/
 
 .idea/
 # SonarLint local cache
+.idea/sonarlint/**/
 .idea/sonarlint/
 
 ### Eclipse ###
