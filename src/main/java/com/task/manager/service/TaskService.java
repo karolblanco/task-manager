@@ -2,20 +2,19 @@ package com.task.manager.service;
 
 
 import com.task.manager.controller.dto.TaskDto;
-import com.task.manager.entity.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface TaskService {
-    Task createTask(TaskDto taskDto);
+    TaskDto createTask(TaskDto taskDto, Long userId);
 
-    List<Task> findTask(String title);
+    TaskDto getTaskByTitle(String title, Long userId);
 
-    Page<TaskDto> findAllTask(String title, String status, Pageable pageable);
+    TaskDto getTaskById(Long id, Long userId);
 
-    TaskDto updateTask(Long id, TaskDto taskDto) throws Exception;
+    Page<TaskDto> findAllTask(String title, String status, Pageable pageable, Long userId);
 
-    void deleteTask(Long id);
+    TaskDto updateTask(Long id, TaskDto taskDto, Long userId);
+
+    void deleteTask(Long id, Long userId);
 }

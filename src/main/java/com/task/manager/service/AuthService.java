@@ -3,6 +3,8 @@ package com.task.manager.service;
 import com.task.manager.entity.RefreshToken;
 import com.task.manager.entity.Role;
 import com.task.manager.entity.User;
+import com.task.manager.exception.ApiException;
+import com.task.manager.exception.ErrorMessage;
 import com.task.manager.payload.AuthResponse;
 import com.task.manager.payload.LoginRequest;
 import com.task.manager.payload.RegisterRequest;
@@ -37,7 +39,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
-            throw new IllegalArgumentException("Email already registered");
+            throw new ApiException(ErrorMessage.EMAIL_ALREADY_EXISTS);
         }
         User user = User.builder()
                 .email(req.email())
@@ -52,12 +54,12 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest req) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.password()));
-        User user = userRepository.findByEmail(req.email()).orElseThrow();
+        User user = userRepository.findByEmail(req.email()).orElseThrow(() -> new ApiException(ErrorMessage.USER_NOT_FOUND));
         return createAndSaveTokens(user.getEmail(), user);
     }
 
     private AuthResponse createAndSaveTokens(String email, User user) {
-        String access = jwtUtils.generateAccessToken(email);
+        String access = jwtUtils.generateAccessToken(user);
         String refresh = jwtUtils.generateRefreshToken(email);
 
         RefreshToken rt = RefreshToken.builder()
@@ -73,13 +75,14 @@ public class AuthService {
 
     public AuthResponse refresh(String refreshToken) {
         RefreshToken rt = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+                .orElseThrow(() -> new ApiException(ErrorMessage.INVALID_TOKEN));
+
 
         if (rt.isRevoked() || rt.getExpiresAt().isBefore(Instant.now())) {
-            throw new IllegalArgumentException("Refresh token expired or revoked");
+            throw new ApiException(ErrorMessage.INVALID_TOKEN);
         }
 
-        String newAccess = jwtUtils.generateAccessToken(rt.getUser().getEmail());
+        String newAccess = jwtUtils.generateAccessToken(rt.getUser());
         return new AuthResponse(newAccess, refreshToken, "Bearer");
     }
 

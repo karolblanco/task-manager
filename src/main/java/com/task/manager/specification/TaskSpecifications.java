@@ -19,13 +19,15 @@ public class TaskSpecifications {
             }
         };
 
-              //  status == null ? null : criteriaBuilder.equal(criteriaBuilder.lower(root.get("status")) , status.toLowerCase());
-
     }
 
     public static Specification<Task> hasTitle(String title){
         return ((root, query, cb) ->
                 title == null ? null : cb.like(cb.lower(root.get("title")) , "%" + title.toLowerCase() + "%" )
                 );
+    }
+
+    public static Specification<Task> hasUserId(Long userId){
+        return (root, query, cb) ->  cb.equal(root.get("user").get("id"), userId);
     }
 }
