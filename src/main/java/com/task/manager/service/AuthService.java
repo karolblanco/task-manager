@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Set;
@@ -85,7 +86,13 @@ public class AuthService {
         String newAccess = jwtUtils.generateAccessToken(rt.getUser());
         return new AuthResponse(newAccess, refreshToken, "Bearer");
     }
+    @Transactional
+    public void logout(String refreshToken) {
+        refreshTokenRepository.findByToken(refreshToken)
+                .ifPresent(rt -> revokeRefreshTokensForUser(rt.getUser().getId()));
+    }
 
+    @Transactional
     public void revokeRefreshTokensForUser(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);
     }

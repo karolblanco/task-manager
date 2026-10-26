@@ -62,6 +62,8 @@ public class JwtUtils {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
+        } catch (io.jsonwebtoken.ExpiredJwtException ex) {
+            throw ex;
         } catch (JwtException | IllegalArgumentException ex) {
             return false;
         }
