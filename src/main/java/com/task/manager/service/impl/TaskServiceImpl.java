@@ -68,6 +68,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto updateTask(Long id, TaskDto taskDto, Long userId) {
         Task currentTask = findTaskById(id, userId);
+        validateUniqueTitle(taskDto.title(), userId);
         this.taskMapper.updateEntityFromDto(taskDto, currentTask);
         Task savedTask = taskRepository.save(currentTask);
         return taskMapper.toDto(savedTask);

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public record TaskDto(
+        Long id,
         @NotBlank(message = "title can't be empty")
         @Size(max = 100, message = "title can't have more than 100 characters")
         String title,
